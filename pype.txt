@@ -1,0 +1,18 @@
+  if(p>0)//processo pai
+  {
+    continue;   
+    
+    //char escreve[100];
+   // sprintf(escreve,"%d",i);
+   // close(fd[0]);
+   // write(fd[1],escreve,strlen(escreve)+1);
+  //  close(fd[1]);
+  }
+  if(p==0)//processo filho
+  {
+    //  char le[100];
+  //close(fd[1]);
+  //read(fd[0],le,100);
+  //close(fd[0]);  
+  // int ilido=atoi(le);
+    
