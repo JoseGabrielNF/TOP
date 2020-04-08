@@ -79,7 +79,8 @@ int main(void) {
         ler(Dados,QTDPIDS,PIDS); 
 		qsort (Dados, QTDPIDS, sizeof(a), comparacpu); 
 		//Lista os processos na interface
-		for(i=0; i<15; i++){
+		for(i=0; (i<15&&i<QTDPIDS); i++){
+			
 			imprime(i, Dados);
             refresh();  	
 		}
