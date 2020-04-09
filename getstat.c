@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
+#include <mytop.h>
 
 void getstat(long int *PR, char S[10], double *CPU, double *TIME, char COMMAND[100], char *pid)
 {
@@ -23,8 +21,12 @@ void getstat(long int *PR, char S[10], double *CPU, double *TIME, char COMMAND[1
   //Abre o arquivo
   arq = fopen(folder, "r");
 
-  if (arq == NULL)
-    perror("Error opening file");
+  if (arq == NULL){
+    //arquivo não encontrado
+		endwin();  
+	  return ;
+
+  }
   else
   {
     //Escaneia o arquivo usando um vetor auxiliar nas informações que não são necessárias
@@ -61,7 +63,7 @@ void getstat(long int *PR, char S[10], double *CPU, double *TIME, char COMMAND[1
   FILE *up;
   up = fopen("/proc/uptime", "r");
   if (up == NULL)
-    perror("Error opening file");
+    perror("Error opening file Uptime");
   else
   {
     fscanf(up, "%d", &uptime);
@@ -89,5 +91,5 @@ void getstat(long int *PR, char S[10], double *CPU, double *TIME, char COMMAND[1
   }
   COMMAND[i - 2] = '\0';
 
-  return;
+  return ;
 }

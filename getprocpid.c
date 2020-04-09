@@ -1,7 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <string.h>
+#include <mytop.h>
+
 void getprocpid(int PIDS[5000],int *QTDPIDS)
 {
     DIR *dir;
@@ -10,11 +8,13 @@ void getprocpid(int PIDS[5000],int *QTDPIDS)
     dir = opendir("/proc");
     (*QTDPIDS)=0;
     int read=0;
-    /* print all the files and directories within directory */
+    if(dir==NULL)
+    {
+       perror("Error opening file getprocpid");
+    }else{
     while ( ( lsdir = readdir(dir) ) != NULL )
     {
-      //  printf ("%s\n", lsdir->d_name);
-        if(strcmp(lsdir->d_name,"1")==0)
+        if(strcmp(lsdir->d_name,"1")==0)//detecta o primeiro numero e começa escanear os diretórios
         {
           read=1;
         }
@@ -27,7 +27,7 @@ void getprocpid(int PIDS[5000],int *QTDPIDS)
     }
 
     closedir(dir);
-
+    }
     return ;
 
 }

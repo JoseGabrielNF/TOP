@@ -1,6 +1,6 @@
-#include <stdio.h>
+#include <mytop.h>
 
-void getuserid(char usr[100][100], char id[100][100], char id2[100][100])
+void getuserid(char usr[100][100], char id[100][100])
 {
     FILE *arq;
     char mystring[10000];
@@ -10,11 +10,11 @@ void getuserid(char usr[100][100], char id[100][100], char id2[100][100])
     //Verifica se tem erro ao abrir
     if (arq == NULL)
     {
-        perror("Error opening file");
+        perror("Error opening file getuserid" );
     }
     else
     {
-    //O arquivo passwd tem o formato usuário:x:id:id2:
+    //O arquivo passwd tem o formato usuário:x:id:
 
         int indice = 0;
         while (fgets(mystring, 1000, arq) != NULL)
@@ -45,15 +45,8 @@ void getuserid(char usr[100][100], char id[100][100], char id2[100][100])
                     id[indice][k + 1] = '\0';
                     k++;
                 }
-                // Se aparecer 3 ":" então le o segundo id
+                // Se aparecer 3 ":" então sai do laço e vai pra proxima linha do arquivo
                 if (contagem == 3)
-                {
-                    id2[indice][j] = mystring[i];
-                    id2[indice][j + 1] = '\0';
-                    j++;
-                }
-                // Se aparecer 4 ":" então sai do laço e vai pra proxima linha do arquivo
-                if (contagem == 4)
                 {
                     break;
                 }
