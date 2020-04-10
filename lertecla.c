@@ -1,4 +1,6 @@
 #include <mytop.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void lertecla(char c, int * linha_inicial, int QTDPIDS,struct mytop *Dados)
 {
@@ -110,17 +112,19 @@ void lertecla(char c, int * linha_inicial, int QTDPIDS,struct mytop *Dados)
 		strcat(cwd, "/config");
 		
 		FILE *arq;
-		arq = fopen(cwd,"w");
+		arq = fopen(cwd,"r");
+		int background,cabecalho,selecao;
+		//Faz a leitura do arquivo config
+		fscanf(arq,"%d %d %d", &background, &cabecalho, &selecao);
+		fclose(arq);	
+		arq = fopen(cwd,"w");		
 		//arquivo não encontrado
 		if (arq == NULL){
 			perror("Error opening file config" );
 		}
-		else
-		{			
-			int background,cabecalho,selecao;
-			fscanf(arq,"%d", &background);
-			fscanf(arq,"%d", &cabecalho);
-			fscanf(arq,"%d", &selecao);
+		else			
+		{	
+			//Salva as novas configurações de cores
 			if((opcao-'0') == 1) {
 				fprintf(arq,"%d%d%d\n",1,(cor1-'0'),(cor2-'0'));
 				fprintf(arq,"%d\n",cabecalho);
