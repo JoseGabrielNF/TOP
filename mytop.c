@@ -1,6 +1,7 @@
 #include <mytop.h>
 
 void lertecla();
+void pintaInterface();
 
 int main(void)
 {
@@ -10,43 +11,28 @@ int main(void)
 
 	//Inicializa o ncurses
 	initscr();
-
 	//Esconde o cursor
 	curs_set(0);
 	//Esta função torna possível o uso das cores
 	start_color();
-
-    //inicia cores
-	init_pair(1, COLOR_BLACK, COLOR_WHITE);
+	
+	//inicia cores
+	init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	init_pair(2, COLOR_BLACK, COLOR_WHITE);
+	init_pair(3, COLOR_RED, COLOR_BLACK);
+	bkgd(COLOR_PAIR(1));
     
 	//ativa cor
-	attron(COLOR_PAIR(1));
-
-	//Laço para pintar a linha do cabeçalho
-	int j;
-	for (j = 0; j < 80; j++)
-		printw(" ");
-
-	//Cabeçalho da interface
-	printupside();
-
-	//Desliga cor
-	attroff(COLOR_PAIR(1));
-
-	//Textos fixos
-	mvprintw(18, 0, "Selecionar \"setas\":");
-	mvprintw(18, 20, "|");
-	mvprintw(19, 20, "v");
-	mvprintw(20, 0, "Ordernar: \"c\",\"p\",\"u\",\"t\" // cpu,pid,usuário,tempo");
-	mvprintw(22, 0, "Matar processo \"k\" ");
-	mvprintw(23, 0, "Sair \"q\" ");
-	mvprintw(24, 0, "Localizar \"l\" :");
-	mvprintw(0, 70, "P:%d", QTDPIDS);
+	attron(COLOR_PAIR(1));	
+	attron(COLOR_PAIR(2));
+	
 	struct mytop Dados[1000];
 	int linha_inicial = 0;
-
+	
 	while (1)
 	{
+		pintaInterface();
+		
 		//Le diretorio proc
 		getprocpid(&PIDS, &QTDPIDS);
 	
@@ -56,31 +42,46 @@ int main(void)
         //Ordena quando necessário
 		qsort(Dados, QTDPIDS, sizeof(estrutura), compara);
 		//Printa
-		for (i = 0; (i < processoexibido && i < QTDPIDS); i++)
+		for (i=0; (i < processoexibido && i < QTDPIDS); i++)
 		{
 			imprime(i, Dados, linha_inicial + i, QTDPIDS);
 			refresh();
 		}
 		//atualiza o proceso quantidade de processosa ativos e processo selecionado
-	    attron(COLOR_PAIR(1));
+	    attron(COLOR_PAIR(2));
         mvprintw(0, 70, "P:(%d)  ", QTDPIDS);
-		attroff(COLOR_PAIR(1));
-		mvprintw(21, 0, "Matar Primeiro Processo:%s", Dados[linha_inicial].COMMAND);
+		attroff(COLOR_PAIR(2));
+		//mvprintw(21, 0, "Matar processo:selecionado: %s", Dados[linha_inicial].COMMAND);
 
 		refresh();
         
 		//Pausa por 0.1 segundos
 		timeout(100);
 		
-		char c = getch();
-	
+		char c = getch();	
         //Condições de cada tecla pressionada
 		lertecla(c,&linha_inicial,QTDPIDS,Dados);
-		//Apagar as linhas para evitar sobreescrita de palavras
-		apaga();
 	}
 	endwin();
 	return (0);
+}
+
+
+void pintaInterface()
+{
+	move(0,0);
+	clrtobot();
+	int linha, coluna;;
+	getmaxyx(stdscr,linha,coluna);
+	//Laço para pintar a linha do cabeçalho
+	attron(COLOR_PAIR(2));
+	for(int i=0; i<coluna; i++){
+		mvprintw(0,i," ");
+	}	
+	//Cabeçalho da interface
+	printupside();
+	attroff(COLOR_PAIR(2));
+	refresh();
 }
 
 void ler(struct mytop * Dados, int QTDPIDS, int PIDS[5000])
@@ -105,8 +106,9 @@ void ler(struct mytop * Dados, int QTDPIDS, int PIDS[5000])
 };
 
 void imprime(int i, struct mytop *Dados, int linha, int QTDPIDS)
-{
-
+{	
+	if(i==0)
+		attron(COLOR_PAIR(3));
 	//apagar a linha caso atinja o limite
 	if (linha >= QTDPIDS)
 	{
@@ -123,29 +125,19 @@ void imprime(int i, struct mytop *Dados, int linha, int QTDPIDS)
 		mvprintw(i + 1, 50, "%d:", (int)(Dados[linha].TIME) / 60 % 60 / 24);
 		printw("%d.", (int)(Dados[linha].TIME) / 60 % 60);
 		printw("%d", (int)(Dados[linha].TIME) % 60);
-		mvprintw(i + 1, 60, "./%s", Dados[linha].COMMAND);
+		mvprintw(i + 1, 60, "./%s", Dados[linha].COMMAND);		
+		attroff(COLOR_PAIR(3));
 	}
 }
-void apaga()
-{
-	//Apaga todas as linhas ,pra não ter palavras por cima das outras
-	int i = processoexibido;
-	for (i = 1; i <= processoexibido; i++)
-	{
-		move(i, 0);
-		clrtoeol();
-	}
-	move(21, 0);
-	clrtoeol();
-}
+
 void printupside()
 {
 	//printa a parte de cima da tela
-	mvprintw(0, 0, "PID");
-	mvprintw(0, 10, "USER");
-	mvprintw(0, 20, "PR");
-	mvprintw(0, 30, "S");
-	mvprintw(0, 40, "%%CPU");
-	mvprintw(0, 50, "TEMPO");
-	mvprintw(0, 60, "COMMAND");
+	mvprintw(0,0, "PID");
+	mvprintw(0,10, "USER");
+	mvprintw(0,20, "PR");
+	mvprintw(0,30, "S");
+	mvprintw(0,40, "%%CPU");
+	mvprintw(0,50, "TIME");
+	mvprintw(0,60, "COMMAND");
 }
