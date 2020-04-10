@@ -115,7 +115,7 @@ void imprime(int i, struct mytop *Dados, int linha, int QTDPIDS)
 		mvprintw(i + 1, 50, "%d:", (int)(Dados[linha].TIME) / 60 % 60 / 24);
 		printw("%d.", (int)(Dados[linha].TIME) / 60 % 60);
 		printw("%d             ", (int)(Dados[linha].TIME) % 60);
-		mvprintw(i + 1, 60, "./%s", Dados[linha].COMMAND);	
+		mvprintw(i + 1, 60, "./%s               ", Dados[linha].COMMAND);	
 	   attroff(COLOR_PAIR(3));
 	}
 }
