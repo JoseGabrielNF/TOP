@@ -1,7 +1,7 @@
 #include <mytop.h>
 
 void lertecla(char c, int * linha_inicial, int QTDPIDS,struct mytop *Dados)
-{	
+{
 	int x, y, opcao;
     if (c=='q')//fechar janela
     {
@@ -71,42 +71,73 @@ void lertecla(char c, int * linha_inicial, int QTDPIDS,struct mytop *Dados)
         int i=0;
         mvprintw(18,0,"	Informe qual esquema de cores deseja alterar: ");
         curs_set(1);
+		
 		char opcao;
 		for (i = 0;;)
-        {
-            opcao = getch();
+		{
+			opcao = getch();
 			if(opcao=='1' || opcao=='2' || opcao=='3')
 				break;
-        }
+		}
 		char cor1;
 		mvprintw(19,0,"	Informe o numero da cor da LETRA: ");
 		for (i = 0;;)
-        {
-            cor1 = getch();
+		{
+			cor1 = getch();
 			if(cor1=='0' || cor1=='1' || cor1=='2' || cor1=='3' || cor1=='4' || cor1=='5' || cor1=='6' || cor1=='7')
 				break;
-        }
+		}
 		char cor2;
 		mvprintw(20,0,"	Informe o número da cor de FUNDO: ");
 		for (i = 0;;)
-        {
-            cor2 = getch();
-			if(cor2=='0' || cor2=='1' || cor2=='2' || cor2=='3' || cor2=='4' || cor2=='5' || cor2=='6' || cor2=='7')		
-				break;
-        }  		
-		if (opcao == '1')//background
 		{
-			
+			cor2 = getch();
+			if(cor2=='0' || cor2=='1' || cor2=='2' || cor2=='3' || cor2=='4' || cor2=='5' || cor2=='6' || cor2=='7')
+				break;
+		}		
+
+		if (opcao == '1')//background
 			init_pair(1,(cor1-'0'),(cor2-'0'));
-		}
 		if (opcao == '2')//cabeçalho
-		{			
 			init_pair(2,(cor1-'0'),(cor2-'0'));
-		}
 		if (opcao == '3')//seleção
-		{			
 			init_pair(3,(cor1-'0'),(cor2-'0'));
+		
+		//Carrega o caminho do diretório atual
+		char cwd[PATH_MAX];
+		getcwd(cwd, sizeof(cwd));
+		//Concatena com o arquivo de configuração
+		strcat(cwd, "/config");
+		
+		FILE *arq;
+		arq = fopen(cwd,"w");
+		//arquivo não encontrado
+		if (arq == NULL){
+			perror("Error opening file config" );
 		}
+		else
+		{			
+			int background,cabecalho,selecao;
+			fscanf(arq,"%d", &background);
+			fscanf(arq,"%d", &cabecalho);
+			fscanf(arq,"%d", &selecao);
+			if((opcao-'0') == 1) {
+				fprintf(arq,"%d%d%d\n",1,(cor1-'0'),(cor2-'0'));
+				fprintf(arq,"%d\n",cabecalho);
+				fprintf(arq,"%d",selecao);
+			}
+			if((opcao-'0') == 2) {
+				fprintf(arq,"%d\n",background);
+				fprintf(arq,"%d%d%d\n",2,(cor1-'0'),(cor2-'0'));
+				fprintf(arq,"%d",selecao);
+			}
+			if((opcao-'0') == 3) {
+				fprintf(arq,"%d\n",background);
+				fprintf(arq,"%d\n",cabecalho);
+				fprintf(arq,"%d%d%d",3,(cor1-'0'),(cor2-'0'));
+			}
+			fclose(arq);		
+		}		
 		curs_set(0);
     }
 	if (c=='h' || c=='?')//abre a ajuda
@@ -140,8 +171,8 @@ void lertecla(char c, int * linha_inicial, int QTDPIDS,struct mytop *Dados)
 		"     l			Localiza um determinado processo\n"
 		"     k			Finaliza o processo selecionado\n"
 		"     m			Altera as cores da interface\n"
-		"     h			Abre a ajuda do aplicativo\n"
-		"     q/?		Fecha o aplicativo\n\n"
+		"     h/?		Abre a ajuda do aplicativo\n"
+		"     q			Fecha o aplicativo\n\n"
 		"Pressione qualquer tecla para voltar...");
         refresh();
 		while ((c = getchar())=='\n');

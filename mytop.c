@@ -8,20 +8,54 @@ int main(void)
 	int PIDS[5000];
 	int QTDPIDS;
 	int i = 0;
-
+	
 	//Inicializa o ncurses
 	initscr();
 	//Esconde o cursor
 	curs_set(0);
 	//Esta função torna possível o uso das cores
-	start_color();
+	start_color();	
+	//Carrega o caminho do diretório atual
+	char cwd[PATH_MAX];
+	getcwd(cwd, sizeof(cwd));
+	//Concatena com o arquivo de configuração
+	strcat(cwd, "/config");
 	
-	//inicia cores
-	init_pair(1, COLOR_WHITE, COLOR_BLACK);
-	init_pair(2, COLOR_BLACK, COLOR_WHITE);
-	init_pair(3, COLOR_RED, COLOR_BLACK);
-	bkgd(COLOR_PAIR(1));
-    
+	FILE *arq;
+	arq = fopen(cwd,"r");
+	//arquivo não encontrado
+	if (arq == NULL){
+		//Cria o arquivo
+		arq = fopen(cwd,"w");
+		//inicia cores padrão
+		init_pair(1, COLOR_WHITE, COLOR_BLACK);
+		init_pair(2, COLOR_BLACK, COLOR_WHITE);
+		init_pair(3, COLOR_RED, COLOR_BLACK);
+		//Salva a configuração padrão
+		fprintf(arq,"170\n207\n310");
+		fclose(arq);		
+	}
+	else
+	{
+		//inicia cores salvas
+		int linha,opcao,cor1,cor2,aux;
+		for(int i=0; i<3; i++){
+			fscanf(arq,"%d", &linha);
+			opcao = linha/100;
+			aux = linha/10;
+			cor1 = aux%10;
+			aux = linha%100;
+			cor2 = aux%10;
+			if(opcao == 1)
+				init_pair(1, cor1, cor2);
+			if(opcao == 2)
+				init_pair(2, cor1, cor2);
+			if(opcao == 3)
+				init_pair(3, cor1, cor2);
+		}
+		fclose(arq);
+	}
+	bkgd(COLOR_PAIR(1));    
 	//ativa cor
 	attron(COLOR_PAIR(1));	
 	attron(COLOR_PAIR(2));
