@@ -29,4 +29,11 @@ void printupside();
 void imprime();
 void apaga();
 void ler();
+void selecaodecores();
+void salvarcor(char a,char b,char c);
+void pintaInterface();
+void manual();
+void abrearquivodecor();
+void lertecla(char a,int *b,int c,struct mytop*Dados);
+
 

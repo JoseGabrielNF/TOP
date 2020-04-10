@@ -1,71 +1,34 @@
 #include <mytop.h>
 
-void lertecla();
-void pintaInterface();
 
 int main(void)
 {
 	int PIDS[5000];
-	int QTDPIDS;
+	int QTDPIDS,QTDPIDSatual;
 	int i = 0;
 	
 	//Inicializa o ncurses
 	initscr();
 	//Esconde o cursor
 	curs_set(0);
-	//Esta função torna possível o uso das cores
+	//Inicializa cores
 	start_color();	
-	//Carrega o caminho do diretório atual
-	char cwd[PATH_MAX];
-	getcwd(cwd, sizeof(cwd));
-	//Concatena com o arquivo de configuração
-	strcat(cwd, "/config");
+	//Carrega cor do arquivo config
+    abrearquivodecor();
 	
-	FILE *arq;
-	arq = fopen(cwd,"r");
-	//arquivo não encontrado
-	if (arq == NULL){
-		//Cria o arquivo
-		arq = fopen(cwd,"w");
-		//inicia cores padrão
-		init_pair(1, COLOR_WHITE, COLOR_BLACK);
-		init_pair(2, COLOR_BLACK, COLOR_WHITE);
-		init_pair(3, COLOR_RED, COLOR_BLACK);
-		//Salva a configuração padrão
-		fprintf(arq,"170\n207\n310");
-		fclose(arq);		
-	}
-	else
-	{
-		//inicia cores salvas
-		int linha,opcao,cor1,cor2,aux;
-		for(int i=0; i<3; i++){
-			fscanf(arq,"%d", &linha);
-			opcao = linha/100;
-			aux = linha/10;
-			cor1 = aux%10;
-			aux = linha%100;
-			cor2 = aux%10;
-			if(opcao == 1)
-				init_pair(1, cor1, cor2);
-			if(opcao == 2)
-				init_pair(2, cor1, cor2);
-			if(opcao == 3)
-				init_pair(3, cor1, cor2);
-		}
-		fclose(arq);
-	}
-	bkgd(COLOR_PAIR(1));    
 	//ativa cor
+	bkgd(COLOR_PAIR(1));    
 	attron(COLOR_PAIR(1));	
 	attron(COLOR_PAIR(2));
+
+    //pinta o cabeçalho da interface
+	pintaInterface();
 	
 	struct mytop Dados[1000];
 	int linha_inicial = 0;
 	
 	while (1)
 	{
-		pintaInterface();
 		
 		//Le diretorio proc
 		getprocpid(&PIDS, &QTDPIDS);
@@ -85,37 +48,18 @@ int main(void)
 	    attron(COLOR_PAIR(2));
         mvprintw(0, 70, "P:(%d)  ", QTDPIDS);
 		attroff(COLOR_PAIR(2));
-		//mvprintw(21, 0, "Matar processo:selecionado: %s", Dados[linha_inicial].COMMAND);
-
 		refresh();
         
-		//Pausa por 0.1 segundos
-		timeout(100);
-		
+		//Pausa por 0.3 segundos para diminuir o uso de cpu
+		timeout(300);
+		noecho();
 		char c = getch();	
+	
         //Condições de cada tecla pressionada
 		lertecla(c,&linha_inicial,QTDPIDS,Dados);
 	}
 	endwin();
 	return (0);
-}
-
-
-void pintaInterface()
-{
-	move(0,0);
-	clrtobot();
-	int linha, coluna;;
-	getmaxyx(stdscr,linha,coluna);
-	//Laço para pintar a linha do cabeçalho
-	attron(COLOR_PAIR(2));
-	for(int i=0; i<coluna; i++){
-		mvprintw(0,i," ");
-	}	
-	//Cabeçalho da interface
-	printupside();
-	attroff(COLOR_PAIR(2));
-	refresh();
 }
 
 void ler(struct mytop * Dados, int QTDPIDS, int PIDS[5000])
@@ -141,37 +85,38 @@ void ler(struct mytop * Dados, int QTDPIDS, int PIDS[5000])
 
 void imprime(int i, struct mytop *Dados, int linha, int QTDPIDS)
 {	
-	if(i==0)
+	if(i==0){
+		//printa selecionado
 		attron(COLOR_PAIR(3));
+	    int linha, coluna,j;
+	    getmaxyx(stdscr,linha,coluna);
+		for(j=0;j<coluna;j++)
+		{
+			mvprintw(1,j," ");
+		}	
+			
+	}
 	//apagar a linha caso atinja o limite
 	if (linha >= QTDPIDS)
 	{
-		move(i + 1, 0);
+		int k;
+		for(k=i+1;k<=processoexibido;k++){
+		move(k, 0);
 		clrtoeol();
+		}
 	}
 	else
 	{
-		mvprintw(i + 1, 0, "%s", Dados[linha].pid);
-		mvprintw(i + 1, 10, "%s", Dados[linha].USER);
-		mvprintw(i + 1, 20, "%lld", Dados[linha].PR);
-		mvprintw(i + 1, 30, "%s", Dados[linha].S);
-		mvprintw(i + 1, 40, "%.2f%%", Dados[linha].CPU);
+		mvprintw(i + 1, 0, "%s                  ", Dados[linha].pid);
+		mvprintw(i + 1, 10, "%s                 ", Dados[linha].USER);
+		mvprintw(i + 1, 20, "%lld               ", Dados[linha].PR);
+		mvprintw(i + 1, 30, "%s                 ", Dados[linha].S);
+		mvprintw(i + 1, 40, "%.2f%%             ", Dados[linha].CPU);
 		mvprintw(i + 1, 50, "%d:", (int)(Dados[linha].TIME) / 60 % 60 / 24);
 		printw("%d.", (int)(Dados[linha].TIME) / 60 % 60);
-		printw("%d", (int)(Dados[linha].TIME) % 60);
-		mvprintw(i + 1, 60, "./%s", Dados[linha].COMMAND);		
-		attroff(COLOR_PAIR(3));
+		printw("%d             ", (int)(Dados[linha].TIME) % 60);
+		mvprintw(i + 1, 60, "./%s", Dados[linha].COMMAND);	
+	   attroff(COLOR_PAIR(3));
 	}
 }
 
-void printupside()
-{
-	//printa a parte de cima da tela
-	mvprintw(0,0, "PID");
-	mvprintw(0,10, "USER");
-	mvprintw(0,20, "PR");
-	mvprintw(0,30, "S");
-	mvprintw(0,40, "%%CPU");
-	mvprintw(0,50, "TIME");
-	mvprintw(0,60, "COMMAND");
-}

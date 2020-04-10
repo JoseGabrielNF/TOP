@@ -6,7 +6,8 @@ all:
 	gcc -c -g getprocpid.c -I ./h -o getprocpid.o
 	gcc -c -g compara.c -I ./h -o compara.o
 	gcc -c -g lertecla.c -I ./h -o lertecla.o
-	gcc mytop.o getuserid.o getusername.o getstat.o getprocpid.o compara.o lertecla.o -o ./mytop -lncurses
+	gcc -c -g interface.c -I ./h -o interface.o
+	gcc mytop.o getuserid.o getusername.o getstat.o getprocpid.o compara.o lertecla.o interface.o -o ./mytop -lncurses
 	
 run:
 	./mytop
