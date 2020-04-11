@@ -144,7 +144,8 @@ void lertecla(char c, int *linha_inicial, int QTDPIDS, struct mytop *Dados)
 			char *args2[20];
 			args2[0] = "pkill";
 			args2[1] = Dados[(*linha_inicial)].COMMAND;
-			args2[2] = NULL;
+			args2[2] = "-x";
+			args2[3] = NULL;
             endwin();
 			pid_t pid = fork(); //cria um fork pra printar fora da tela atual
 			if (pid == 0)
